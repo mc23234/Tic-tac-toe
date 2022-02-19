@@ -21,19 +21,28 @@ body{
 }
 
 .result{
-	display:none;
 	position:absolute;
-	background:burlywood;
-	height:50%;
-	width:35%;
-	left:32.5%;
+	background:rgba(234,234,132,0.7);
+	height:45%;
+	width:25%;
+	left:37.5%;
 	top:30%;
 	border-radius:5rem;
 	filter:drop-shadow(8px 8px 5px grey);	
 }
 
+@media(max-width:450px){
+	.result{
+		width:70%;
+		left:15%;
+	}
+}
+
 .text{
-	height:70%;
+	height:50%;
+	font-size:3.5rem;
+	margin-top:20%;
+	
 }
 
 .reset-btn{

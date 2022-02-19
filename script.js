@@ -1,72 +1,91 @@
-const gameBoard = (() => {
-	
-	const container = document.querySelector('.game-board');
-	const boardArr = Array.from(document.querySelectorAll('.blocks'));
-	return boardArr;
-})();
+let board;
+const winCombo = [
+					[0,1,2],
+					[3,4,5],
+					[6,7,8],
+					[0,3,6],
+					[1,4,7],
+					[2,5,8],
+					[0,4,8],
+					[2,4,6]
+				];
+let playerX = 'x';
+let playerO = 'o';
+let counter = 0;
+const blocks = document.querySelectorAll('.block');
+const result = document.querySelector('.result');
 
-const game = document.querySelector('.game');
-const text = document.querySelector('.text');
-const reset = document.querySelector('.reset');
-
-let xArr = [];
-let oArr = [];
-
-
-function playRound(flag,status){
-gameBoard.forEach((block) => {
-	block.addEventListener('click',() => {
-		if(!block.textContent && !status ){
-
-			if(flag){
-				block.textContent = 'x';
-				xArr.push(`${gameBoard.indexOf(block)}`);
-				if(xArr.length>=3)
-					status = check(xArr);
-				if(status)
-					text.textContent = 'Player X wins';
-				flag = false;
+function startGame(){
+		result.style.visibility = 'hidden';
+		board = Array.from(Array(9).keys());
+		for(let i = 0; i < board.length; i++){
+				blocks[i].innerText = '';
+				blocks[i].style.background = 'none';
+				blocks[i].addEventListener('click', addMarker);
 			}
-			else{
-				block.textContent = 'o';
-				oArr.push(`${gameBoard.indexOf(block)}`);
-				if(oArr.length>=3)
-					status = check(oArr);
-				if(status)
-					text.textContent = 'Player O wins';
-				flag = true;
-			}
-		}
-		})
-	
-});
+	}
 
-}
-const check = (indexArr) => {
-	
-	indexArr.sort();
-	let newarr = [];
-	let str = '';
-	let win = ['012','345','678','036','147','258','048','246'];
+function addMarker(cell){
+		
+		if(typeof board[cell.target.id] === 'number'){
+				takeTurn(cell.target.id,playerX);	
+			if(!checkTie())
+				setTimeout(() => {takeTurn(findSpot(),playerO)},1000);
 
-	for (let i = 0; i < indexArr.length; i++){
-	
-		for(let j = i+1; j < indexArr.length; j++){
-	
-			for(let k = j+1; k < indexArr.length; k++){
-			
-				str = indexArr[i]+ indexArr[j]+ indexArr[k];
-				newarr.push(str);
-			}
 		}
 	}
-	for(let i = 0; i < newarr.length; i++){
-	
-		if(win.includes(newarr[i])){
-			game.style.display = 'flex';
+
+function findSpot(){
+		return board.filter(e => typeof e === 'number')[0];
+	}
+
+function takeTurn(id,player){
+		document.getElementById(id).innerText = player;
+		board[id] = player;
+		let gameWon = checkWin(player);
+		if(gameWon) gameOver(gameWon);
+		let tie = checkTie();
+		if(!gameWon && tie){
+				setTimeout(() => {result.style.visibility = 'visible'},1000);
+				result.firstElementChild.innerText = `game tied`;
+			}
+	}
+
+function checkTie(){
+		let arr = board.filter(e => typeof e === 'number');
+		if(arr.length === 0)
 			return true;
-		}
+		return false;
 	}
-};
 
-playRound(true,false);
+function checkWin(player){
+		let arr = board.reduce((a,b,c,d) => {return board[c] === player?a.concat(c):a},[]);
+		let gameWon = null;
+		for(let [index,combo] of winCombo.entries()){
+				if(combo.every(a => arr.indexOf(a) > -1)){
+					gameWon = {index,player};
+					break;
+				}
+			}
+		return gameWon;
+	}
+
+function gameOver(gameWon){
+		blocks.forEach(cell => {cell.removeEventListener('click',addMarker)});
+		reset(gameWon);
+	}
+
+function reset(gameWon){
+		
+		for(let i of winCombo[gameWon.index])
+			blocks[i].style.background = 'rgba(23,212,212,0.25)';
+		
+		setTimeout(() => {result.style.visibility = 'visible'},1000);
+		result.firstElementChild.innerText = `Player ${gameWon.player} \n wins`;
+		
+	}
+
+result.lastElementChild.addEventListener('click',startGame);
+
+startGame();
+
