@@ -11,7 +11,7 @@ const winCombo = [
 				];
 let playerX = 'x';
 let playerO = 'o';
-let counter = 0;
+let flag = true;
 const blocks = document.querySelectorAll('.block');
 const result = document.querySelector('.result');
 
@@ -29,9 +29,10 @@ function addMarker(cell){
 		
 		if(typeof board[cell.target.id] === 'number'){
 				takeTurn(cell.target.id,playerX);	
-			if(!checkTie())
-				setTimeout(() => {takeTurn(findSpot(),playerO)},1000);
-
+			if(!checkTie()){
+				if(flag)
+					setTimeout(() => {takeTurn(findSpot(),playerO)},1000);
+			}
 		}
 	}
 
@@ -64,6 +65,7 @@ function checkWin(player){
 		for(let [index,combo] of winCombo.entries()){
 				if(combo.every(a => arr.indexOf(a) > -1)){
 					gameWon = {index,player};
+					flag = false;
 					break;
 				}
 			}
@@ -85,7 +87,7 @@ function reset(gameWon){
 		
 	}
 
-result.lastElementChild.addEventListener('click',startGame);
+result.lastElementChild.addEventListener('click',() => {startGame();flag = true;});
 
 startGame();
 
